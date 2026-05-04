@@ -5,6 +5,7 @@ import { ExpenseRoutes } from '../modules/expense/expense.routes';
 import { CategoryRoutes } from '../modules/category/category.routes';
 import { BudgetRoutes } from '../modules/budget/budget.routes';
 import { DashboardRoutes } from '../modules/dashboard/dashboard.routes';
+import { AiExtractRoutes } from '../modules/ai-extract/aiExtract.routes';
 
 const router = Router();
 
@@ -15,6 +16,7 @@ const moduleRoutes = [
   { path: '/categories', route: CategoryRoutes },
   { path: '/budgets', route: BudgetRoutes },
   { path: '/dashboard', route: DashboardRoutes },
+  { path: '/ai-extract', route: AiExtractRoutes },
 ];
 
 moduleRoutes.forEach((route) => {

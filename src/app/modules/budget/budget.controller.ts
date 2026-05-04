@@ -27,7 +27,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getById = catchAsync(async (req: Request, res: Response) => {
-  const result = await BudgetService.getById(req.user!.userId, req.params.id);
+  const result = await BudgetService.getById(req.user!.userId, req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -37,7 +37,7 @@ const getById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const update = catchAsync(async (req: Request, res: Response) => {
-  const result = await BudgetService.update(req.user!.userId, req.params.id, req.body);
+  const result = await BudgetService.update(req.user!.userId, req.params.id as string, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -47,7 +47,7 @@ const update = catchAsync(async (req: Request, res: Response) => {
 });
 
 const remove = catchAsync(async (req: Request, res: Response) => {
-  const result = await BudgetService.remove(req.user!.userId, req.params.id);
+  const result = await BudgetService.remove(req.user!.userId, req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

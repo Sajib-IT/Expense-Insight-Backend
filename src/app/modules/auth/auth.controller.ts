@@ -25,7 +25,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
 });
 
 const verifyEmail = catchAsync(async (req: Request, res: Response) => {
-  const { token } = req.params;
+  const token = req.params.token as string;
   const result = await AuthService.verifyEmail(token);
   sendResponse(res, {
     statusCode: httpStatus.OK,

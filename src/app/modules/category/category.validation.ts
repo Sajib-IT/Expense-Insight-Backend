@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 const create = z.object({
   body: z.object({
-    name: z.string({ required_error: 'Name is required' }),
-    type: z.enum(['INCOME', 'EXPENSE'], { required_error: 'Type is required' }),
+    name: z.string({ message: 'Name is required' }),
+    type: z.enum(['INCOME', 'EXPENSE'], { message: 'Type is required' }),
     icon: z.string().optional(),
     colour: z.string().optional(),
   }),

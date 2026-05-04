@@ -2,11 +2,11 @@ import { z } from 'zod';
 
 const create = z.object({
   body: z.object({
-    amount: z.number({ required_error: 'Amount is required' }).positive('Amount must be positive'),
+    amount: z.number({ message: 'Amount is required' }).positive('Amount must be positive'),
     description: z.string().optional(),
-    date: z.string({ required_error: 'Date is required' }),
+    date: z.string({ message: 'Date is required' }),
     type: z.enum(['INCOME', 'EXPENSE']).default('EXPENSE'),
-    categoryId: z.string({ required_error: 'Category is required' }),
+    categoryId: z.string({ message: 'Category is required' }),
   }),
 });
 

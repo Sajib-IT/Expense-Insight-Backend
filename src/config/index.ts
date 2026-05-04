@@ -29,4 +29,8 @@ export default {
   clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
 
   bcryptSaltRounds: parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10),
+
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || '',
+  },
 };
