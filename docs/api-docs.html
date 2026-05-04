@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Insight API Documentation</title>
+<style>
+  :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8; --green: #4ade80; --yellow: #fbbf24; --red: #f87171; --purple: #a78bfa; --blue: #60a5fa; --orange: #fb923c; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 2rem; margin-bottom: .25rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: .95rem; }
+  h2 { font-size: 1.35rem; margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border); color: var(--accent); }
+  h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 1.5rem 0 .5rem; }
+
+  .endpoint { background: var(--card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
+  .endpoint-header { display: flex; align-items: center; gap: .75rem; padding: .85rem 1.15rem; cursor: pointer; user-select: none; }
+  .endpoint-header:hover { background: rgba(56,189,248,.04); }
+  .method { font-size: .72rem; font-weight: 700; padding: .25rem .55rem; border-radius: 4px; letter-spacing: .04em; min-width: 52px; text-align: center; }
+  .method.get { background: rgba(74,222,128,.15); color: var(--green); }
+  .method.post { background: rgba(96,165,250,.15); color: var(--blue); }
+  .method.patch { background: rgba(251,191,36,.15); color: var(--yellow); }
+  .method.delete { background: rgba(248,113,113,.15); color: var(--red); }
+  .endpoint-path { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: .88rem; color: var(--text); }
+  .endpoint-desc { color: var(--muted); font-size: .82rem; margin-left: auto; }
+  .endpoint-body { display: none; padding: 0 1.15rem 1.15rem; }
+  .endpoint.open .endpoint-body { display: block; }
+  .endpoint.open .endpoint-header { border-bottom: 1px solid var(--border); }
+  .chevron { color: var(--muted); margin-left: auto; transition: transform .2s; font-size: .7rem; }
+  .endpoint.open .chevron { transform: rotate(90deg); }
+
+  .tag { display: inline-block; font-size: .68rem; padding: .15rem .45rem; border-radius: 3px; margin-left: .5rem; }
+  .tag.auth { background: rgba(167,139,250,.15); color: var(--purple); }
+  .tag.public { background: rgba(74,222,128,.1); color: var(--green); }
+
+  table { width: 100%; border-collapse: collapse; margin: .5rem 0; font-size: .82rem; }
+  th { text-align: left; color: var(--muted); font-weight: 600; padding: .4rem .6rem; border-bottom: 1px solid var(--border); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; }
+  td { padding: .4rem .6rem; border-bottom: 1px solid rgba(51,65,85,.5); }
+  td code { background: rgba(56,189,248,.08); padding: .1rem .35rem; border-radius: 3px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: .78rem; color: var(--accent); }
+
+  pre { background: #0c1322; border: 1px solid var(--border); border-radius: 6px; padding: .85rem 1rem; overflow-x: auto; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: .78rem; line-height: 1.5; margin: .5rem 0; }
+  pre .key { color: var(--accent); }
+  pre .str { color: var(--green); }
+  pre .num { color: var(--yellow); }
+  pre .bool { color: var(--purple); }
+  pre .comment { color: var(--muted); font-style: italic; }
+
+  .model-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.15rem; margin-bottom: 1rem; }
+  .model-card h4 { font-size: 1rem; margin-bottom: .65rem; color: var(--text); }
+
+  .note { background: rgba(251,191,36,.06); border-left: 3px solid var(--yellow); padding: .6rem .85rem; border-radius: 0 6px 6px 0; font-size: .8rem; color: var(--yellow); margin: .5rem 0; }
+
+  .toc { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .5rem; margin-bottom: 2rem; }
+  .toc a { display: block; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: .6rem .85rem; color: var(--accent); text-decoration: none; font-size: .85rem; transition: border-color .2s; }
+  .toc a:hover { border-color: var(--accent); }
+
+  @media (max-width: 640px) { .endpoint-desc { display: none; } .endpoint-header { gap: .5rem; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1><span>Expense Insight</span> API</h1>
+<p class="subtitle">Express + Prisma + Neon DB + Gemini AI &mdash; Base URL: <code>http://localhost:5000/api/v1</code></p>
+
+<div class="toc">
+  <a href="#health">Health Check</a>
+  <a href="#auth">Auth (7 endpoints)</a>
+  <a href="#user">User (2 endpoints)</a>
+  <a href="#categories">Categories (5 endpoints)</a>
+  <a href="#expenses">Expenses (5 endpoints)</a>
+  <a href="#budgets">Budgets (5 endpoints)</a>
+  <a href="#dashboard">Dashboard (1 endpoint)</a>
+  <a href="#ai-extract">AI Extract (2 endpoints)</a>
+  <a href="#models">Data Models</a>
+</div>
+
+<!-- ===================== HEALTH ===================== -->
+<h2 id="health">Health Check</h2>
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/health</span>
+    <span class="tag public">Public</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Response 200</h3>
+    <pre>{ <span class="key">"success"</span>: <span class="bool">true</span>, <span class="key">"message"</span>: <span class="str">"Expense Insight API is running"</span>, <span class="key">"timestamp"</span>: <span class="str">"2026-05-05T..."</span> }</pre>
+  </div>
+</div>
+
+<!-- ===================== AUTH ===================== -->
+<h2 id="auth">Auth</h2>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/auth/register</span>
+    <span class="tag public">Public</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{
+  <span class="key">"name"</span>: <span class="str">"John Doe"</span>,            <span class="comment">// required</span>
+  <span class="key">"email"</span>: <span class="str">"john@example.com"</span>,    <span class="comment">// required, valid email</span>
+  <span class="key">"password"</span>: <span class="str">"password123"</span>        <span class="comment">// required, min 6 chars</span>
+}</pre>
+    <h3>Response 201</h3>
+    <pre>{ <span class="key">"id"</span>, <span class="key">"name"</span>, <span class="key">"email"</span>, <span class="key">"isVerified"</span>, <span class="key">"createdAt"</span> }</pre>
+    <div class="note">Sends a verification email to the registered address.</div>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/auth/login</span>
+    <span class="tag public">Public</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{
+  <span class="key">"email"</span>: <span class="str">"john@example.com"</span>,
+  <span class="key">"password"</span>: <span class="str">"password123"</span>
+}</pre>
+    <h3>Response 200</h3>
+    <pre>{
+  <span class="key">"accessToken"</span>: <span class="str">"eyJhbG..."</span>,
+  <span class="key">"refreshToken"</span>: <span class="str">"eyJhbG..."</span>,
+  <span class="key">"user"</span>: { <span class="key">"id"</span>, <span class="key">"name"</span>, <span class="key">"email"</span>, <span class="key">"isVerified"</span> }
+}</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/api/v1/auth/verify-email/:token</span>
+    <span class="tag public">Public</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>URL Params</h3>
+    <table><tr><th>Param</th><th>Type</th><th>Description</th></tr>
+    <tr><td><code>token</code></td><td>string</td><td>Verification token from email link</td></tr></table>
+    <h3>Response 200</h3>
+    <pre>{ <span class="key">"message"</span>: <span class="str">"Email verified successfully"</span> }</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/auth/forgot-password</span>
+    <span class="tag public">Public</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{ <span class="key">"email"</span>: <span class="str">"john@example.com"</span> }</pre>
+    <h3>Response 200</h3>
+    <pre>{ <span class="key">"message"</span>: <span class="str">"If the email exists, a reset link has been sent"</span> }</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/auth/reset-password</span>
+    <span class="tag public">Public</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{
+  <span class="key">"token"</span>: <span class="str">"reset-token-from-email"</span>,
+  <span class="key">"password"</span>: <span class="str">"newPassword123"</span>       <span class="comment">// min 6 chars</span>
+}</pre>
+    <h3>Response 200</h3>
+    <pre>{ <span class="key">"message"</span>: <span class="str">"Password reset successfully"</span> }</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/auth/change-password</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{
+  <span class="key">"currentPassword"</span>: <span class="str">"password123"</span>,
+  <span class="key">"newPassword"</span>: <span class="str">"newPassword456"</span>    <span class="comment">// min 6 chars</span>
+}</pre>
+    <h3>Response 200</h3>
+    <pre>{ <span class="key">"message"</span>: <span class="str">"Password changed successfully"</span> }</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/auth/refresh-token</span>
+    <span class="tag public">Public</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{ <span class="key">"refreshToken"</span>: <span class="str">"eyJhbG..."</span> }</pre>
+    <h3>Response 200</h3>
+    <pre>{ <span class="key">"accessToken"</span>: <span class="str">"new-eyJhbG..."</span> }</pre>
+  </div>
+</div>
+
+<!-- ===================== USER ===================== -->
+<h2 id="user">User</h2>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/api/v1/users/profile</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Response 200</h3>
+    <pre>{ <span class="key">"id"</span>, <span class="key">"name"</span>, <span class="key">"email"</span>, <span class="key">"avatar"</span>, <span class="key">"isVerified"</span>, <span class="key">"createdAt"</span>, <span class="key">"updatedAt"</span> }</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint-path">/api/v1/users/profile</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{
+  <span class="key">"name"</span>: <span class="str">"John Updated"</span>,              <span class="comment">// optional</span>
+  <span class="key">"avatar"</span>: <span class="str">"https://example.com/pic.png"</span> <span class="comment">// optional</span>
+}</pre>
+  </div>
+</div>
+
+<!-- ===================== CATEGORIES ===================== -->
+<h2 id="categories">Categories</h2>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/categories</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{
+  <span class="key">"name"</span>: <span class="str">"Food"</span>,            <span class="comment">// required</span>
+  <span class="key">"type"</span>: <span class="str">"EXPENSE"</span>,         <span class="comment">// required: INCOME | EXPENSE</span>
+  <span class="key">"icon"</span>: <span class="str">"🍔"</span>,              <span class="comment">// optional</span>
+  <span class="key">"colour"</span>: <span class="str">"#FF5733"</span>         <span class="comment">// optional</span>
+}</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/api/v1/categories</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Query Params</h3>
+    <table><tr><th>Param</th><th>Type</th><th>Description</th></tr>
+    <tr><td><code>type</code></td><td>string</td><td>Optional: <code>INCOME</code> or <code>EXPENSE</code></td></tr></table>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/api/v1/categories/:id</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>URL Params</h3>
+    <table><tr><th>Param</th><th>Type</th></tr>
+    <tr><td><code>id</code></td><td>UUID</td></tr></table>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint-path">/api/v1/categories/:id</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{
+  <span class="key">"name"</span>: <span class="str">"Groceries"</span>,      <span class="comment">// optional</span>
+  <span class="key">"type"</span>: <span class="str">"EXPENSE"</span>,        <span class="comment">// optional</span>
+  <span class="key">"icon"</span>: <span class="str">"🛒"</span>,             <span class="comment">// optional</span>
+  <span class="key">"colour"</span>: <span class="str">"#28A745"</span>        <span class="comment">// optional</span>
+}</pre>
+    <div class="note">Default categories cannot be modified.</div>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method delete">DELETE</span>
+    <span class="endpoint-path">/api/v1/categories/:id</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <div class="note">Cannot delete default categories or categories with existing expenses.</div>
+  </div>
+</div>
+
+<!-- ===================== EXPENSES ===================== -->
+<h2 id="expenses">Expenses</h2>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/expenses</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{
+  <span class="key">"amount"</span>: <span class="num">29.99</span>,                     <span class="comment">// required, positive</span>
+  <span class="key">"description"</span>: <span class="str">"Weekly groceries"</span>,     <span class="comment">// optional</span>
+  <span class="key">"date"</span>: <span class="str">"2026-05-05"</span>,                <span class="comment">// required, ISO date</span>
+  <span class="key">"type"</span>: <span class="str">"EXPENSE"</span>,                   <span class="comment">// default EXPENSE</span>
+  <span class="key">"categoryId"</span>: <span class="str">"uuid"</span>                  <span class="comment">// required</span>
+}</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/api/v1/expenses</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Query Params</h3>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      <tr><td><code>page</code></td><td>string</td><td>1</td><td>Page number</td></tr>
+      <tr><td><code>limit</code></td><td>string</td><td>10</td><td>Items per page</td></tr>
+      <tr><td><code>sortBy</code></td><td>string</td><td>createdAt</td><td>Sort field</td></tr>
+      <tr><td><code>sortOrder</code></td><td>string</td><td>desc</td><td><code>asc</code> or <code>desc</code></td></tr>
+      <tr><td><code>type</code></td><td>string</td><td>&mdash;</td><td><code>INCOME</code> or <code>EXPENSE</code></td></tr>
+      <tr><td><code>categoryId</code></td><td>string</td><td>&mdash;</td><td>Filter by category</td></tr>
+      <tr><td><code>startDate</code></td><td>string</td><td>&mdash;</td><td>ISO date range start</td></tr>
+      <tr><td><code>endDate</code></td><td>string</td><td>&mdash;</td><td>ISO date range end</td></tr>
+      <tr><td><code>searchTerm</code></td><td>string</td><td>&mdash;</td><td>Search in description</td></tr>
+    </table>
+    <h3>Response includes</h3>
+    <pre><span class="key">"meta"</span>: { <span class="key">"page"</span>: <span class="num">1</span>, <span class="key">"limit"</span>: <span class="num">10</span>, <span class="key">"total"</span>: <span class="num">42</span>, <span class="key">"totalPages"</span>: <span class="num">5</span> }</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/api/v1/expenses/:id</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>URL Params</h3>
+    <table><tr><th>Param</th><th>Type</th></tr><tr><td><code>id</code></td><td>UUID</td></tr></table>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint-path">/api/v1/expenses/:id</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body (all optional)</h3>
+    <pre>{
+  <span class="key">"amount"</span>: <span class="num">35.00</span>,
+  <span class="key">"description"</span>: <span class="str">"Updated"</span>,
+  <span class="key">"date"</span>: <span class="str">"2026-05-06"</span>,
+  <span class="key">"type"</span>: <span class="str">"EXPENSE"</span>,
+  <span class="key">"categoryId"</span>: <span class="str">"uuid"</span>
+}</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method delete">DELETE</span>
+    <span class="endpoint-path">/api/v1/expenses/:id</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body"><p style="font-size:.82rem;color:var(--muted)">Deletes the expense permanently.</p></div>
+</div>
+
+<!-- ===================== BUDGETS ===================== -->
+<h2 id="budgets">Budgets</h2>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/budgets</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{
+  <span class="key">"amount"</span>: <span class="num">500.00</span>,       <span class="comment">// required, positive</span>
+  <span class="key">"month"</span>: <span class="num">5</span>,             <span class="comment">// required, 1-12</span>
+  <span class="key">"year"</span>: <span class="num">2026</span>,           <span class="comment">// required, 2000-2100</span>
+  <span class="key">"categoryId"</span>: <span class="str">"uuid"</span>    <span class="comment">// required</span>
+}</pre>
+    <div class="note">One budget per month + year + category combination.</div>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/api/v1/budgets</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Query Params</h3>
+    <table><tr><th>Param</th><th>Type</th><th>Description</th></tr>
+    <tr><td><code>month</code></td><td>string</td><td>Filter by month (1-12)</td></tr>
+    <tr><td><code>year</code></td><td>string</td><td>Filter by year</td></tr></table>
+    <h3>Response includes computed fields</h3>
+    <pre><span class="key">"spent"</span>: <span class="num">320</span>, <span class="key">"remaining"</span>: <span class="num">180</span>, <span class="key">"percentage"</span>: <span class="num">64</span></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/api/v1/budgets/:id</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <table><tr><th>Param</th><th>Type</th></tr><tr><td><code>id</code></td><td>UUID</td></tr></table>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint-path">/api/v1/budgets/:id</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{ <span class="key">"amount"</span>: <span class="num">600.00</span> }</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method delete">DELETE</span>
+    <span class="endpoint-path">/api/v1/budgets/:id</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body"><p style="font-size:.82rem;color:var(--muted)">Deletes the budget permanently.</p></div>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<h2 id="dashboard">Dashboard</h2>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/api/v1/dashboard</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Query Params</h3>
+    <table><tr><th>Param</th><th>Type</th><th>Default</th></tr>
+    <tr><td><code>month</code></td><td>string</td><td>Current month</td></tr>
+    <tr><td><code>year</code></td><td>string</td><td>Current year</td></tr></table>
+    <h3>Response 200</h3>
+    <pre>{
+  <span class="key">"period"</span>: { <span class="key">"month"</span>: <span class="num">5</span>, <span class="key">"year"</span>: <span class="num">2026</span> },
+  <span class="key">"summary"</span>: {
+    <span class="key">"totalIncome"</span>: <span class="num">3000</span>,
+    <span class="key">"totalExpenses"</span>: <span class="num">1250.50</span>,
+    <span class="key">"balance"</span>: <span class="num">1749.50</span>,
+    <span class="key">"transactionCount"</span>: <span class="num">42</span>
+  },
+  <span class="key">"categoryBreakdown"</span>: [{
+    <span class="key">"categoryId"</span>, <span class="key">"categoryName"</span>: <span class="str">"Food"</span>,
+    <span class="key">"total"</span>: <span class="num">450</span>, <span class="key">"count"</span>: <span class="num">15</span>, <span class="key">"percentage"</span>: <span class="num">36</span>
+  }],
+  <span class="key">"budgetOverview"</span>: [{
+    <span class="key">"categoryName"</span>: <span class="str">"Food"</span>, <span class="key">"budgetAmount"</span>: <span class="num">500</span>,
+    <span class="key">"spent"</span>: <span class="num">450</span>, <span class="key">"remaining"</span>: <span class="num">50</span>, <span class="key">"percentage"</span>: <span class="num">90</span>
+  }],
+  <span class="key">"recentTransactions"</span>: [<span class="comment">/* last 10 */</span>]
+}</pre>
+  </div>
+</div>
+
+<!-- ===================== AI EXTRACT ===================== -->
+<h2 id="ai-extract">AI Extract (Gemini)</h2>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/ai-extract/receipt</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body &mdash; multipart/form-data</h3>
+    <table><tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    <tr><td><code>receipt</code></td><td>File</td><td>JPEG, PNG, WebP, HEIC &mdash; max 10 MB</td></tr></table>
+    <h3>Response 200</h3>
+    <pre>{
+  <span class="key">"amount"</span>: <span class="num">12.50</span>,
+  <span class="key">"description"</span>: <span class="str">"Lunch"</span>,
+  <span class="key">"date"</span>: <span class="str">"2026-05-05"</span>,
+  <span class="key">"type"</span>: <span class="str">"EXPENSE"</span>,
+  <span class="key">"category"</span>: <span class="str">"Food"</span>,
+  <span class="key">"merchant"</span>: <span class="str">"Tesco"</span>,
+  <span class="key">"currency"</span>: <span class="str">"GBP"</span>,
+  <span class="key">"items"</span>: [{ <span class="key">"name"</span>: <span class="str">"Meal deal"</span>, <span class="key">"quantity"</span>: <span class="num">1</span>, <span class="key">"price"</span>: <span class="num">12.50</span> }],
+  <span class="key">"confidence"</span>: <span class="num">0.95</span>
+}</pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/api/v1/ai-extract/text</span>
+    <span class="tag auth">Auth</span>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="endpoint-body">
+    <h3>Request Body</h3>
+    <pre>{ <span class="key">"text"</span>: <span class="str">"Spent £12.50 at Tesco for lunch yesterday"</span> }</pre>
+    <h3>Response 200</h3>
+    <p style="font-size:.82rem;color:var(--muted)">Same response shape as receipt extraction above.</p>
+  </div>
+</div>
+
+<!-- ===================== MODELS ===================== -->
+<h2 id="models">Data Models</h2>
+
+<div class="model-card">
+  <h4>User</h4>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    <tr><td><code>id</code></td><td>UUID</td><td>Primary key</td></tr>
+    <tr><td><code>email</code></td><td>String</td><td>Unique</td></tr>
+    <tr><td><code>password</code></td><td>String</td><td>Hashed (bcrypt)</td></tr>
+    <tr><td><code>name</code></td><td>String</td><td></td></tr>
+    <tr><td><code>avatar</code></td><td>String?</td><td>Optional</td></tr>
+    <tr><td><code>isVerified</code></td><td>Boolean</td><td>Default false</td></tr>
+    <tr><td><code>verificationToken</code></td><td>String?</td><td></td></tr>
+    <tr><td><code>resetToken</code></td><td>String?</td><td></td></tr>
+    <tr><td><code>resetTokenExpiry</code></td><td>DateTime?</td><td></td></tr>
+    <tr><td><code>createdAt</code></td><td>DateTime</td><td>Auto</td></tr>
+    <tr><td><code>updatedAt</code></td><td>DateTime</td><td>Auto</td></tr>
+  </table>
+</div>
+
+<div class="model-card">
+  <h4>Category</h4>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    <tr><td><code>id</code></td><td>UUID</td><td>Primary key</td></tr>
+    <tr><td><code>name</code></td><td>String</td><td>Unique per user</td></tr>
+    <tr><td><code>type</code></td><td>INCOME | EXPENSE</td><td></td></tr>
+    <tr><td><code>icon</code></td><td>String?</td><td>Optional</td></tr>
+    <tr><td><code>colour</code></td><td>String?</td><td>Optional</td></tr>
+    <tr><td><code>isDefault</code></td><td>Boolean</td><td>Default false</td></tr>
+    <tr><td><code>userId</code></td><td>UUID</td><td>FK &rarr; User</td></tr>
+    <tr><td><code>createdAt</code></td><td>DateTime</td><td>Auto</td></tr>
+    <tr><td><code>updatedAt</code></td><td>DateTime</td><td>Auto</td></tr>
+  </table>
+</div>
+
+<div class="model-card">
+  <h4>Expense</h4>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    <tr><td><code>id</code></td><td>UUID</td><td>Primary key</td></tr>
+    <tr><td><code>amount</code></td><td>Float</td><td></td></tr>
+    <tr><td><code>description</code></td><td>String?</td><td>Optional</td></tr>
+    <tr><td><code>date</code></td><td>DateTime</td><td></td></tr>
+    <tr><td><code>type</code></td><td>INCOME | EXPENSE</td><td>Default EXPENSE</td></tr>
+    <tr><td><code>receiptUrl</code></td><td>String?</td><td>Optional</td></tr>
+    <tr><td><code>categoryId</code></td><td>UUID</td><td>FK &rarr; Category</td></tr>
+    <tr><td><code>userId</code></td><td>UUID</td><td>FK &rarr; User</td></tr>
+    <tr><td><code>createdAt</code></td><td>DateTime</td><td>Auto</td></tr>
+    <tr><td><code>updatedAt</code></td><td>DateTime</td><td>Auto</td></tr>
+  </table>
+</div>
+
+<div class="model-card">
+  <h4>Budget</h4>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    <tr><td><code>id</code></td><td>UUID</td><td>Primary key</td></tr>
+    <tr><td><code>amount</code></td><td>Float</td><td>Budget limit</td></tr>
+    <tr><td><code>spent</code></td><td>Float</td><td>Default 0</td></tr>
+    <tr><td><code>month</code></td><td>Int</td><td>1&ndash;12</td></tr>
+    <tr><td><code>year</code></td><td>Int</td><td></td></tr>
+    <tr><td><code>categoryId</code></td><td>UUID</td><td>FK &rarr; Category</td></tr>
+    <tr><td><code>userId</code></td><td>UUID</td><td>FK &rarr; User</td></tr>
+    <tr><td><code>createdAt</code></td><td>DateTime</td><td>Auto</td></tr>
+    <tr><td><code>updatedAt</code></td><td>DateTime</td><td>Auto</td></tr>
+  </table>
+  <div class="note">Unique constraint: [month, year, categoryId, userId]</div>
+</div>
+
+<!-- ===================== RESPONSE SHAPES ===================== -->
+<h2>Standard Response Shapes</h2>
+
+<div class="model-card">
+  <h4>Success Response</h4>
+  <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"message"</span>: <span class="str">"..."</span>,
+  <span class="key">"meta"</span>: { <span class="key">"page"</span>: <span class="num">1</span>, <span class="key">"limit"</span>: <span class="num">10</span>, <span class="key">"total"</span>: <span class="num">42</span>, <span class="key">"totalPages"</span>: <span class="num">5</span> },
+  <span class="key">"data"</span>: { ... }
+}</pre>
+</div>
+
+<div class="model-card">
+  <h4>Error Response</h4>
+  <pre>{
+  <span class="key">"success"</span>: <span class="bool">false</span>,
+  <span class="key">"message"</span>: <span class="str">"..."</span>,
+  <span class="key">"errorMessages"</span>: [{ <span class="key">"path"</span>: <span class="str">"email"</span>, <span class="key">"message"</span>: <span class="str">"Invalid email"</span> }],
+  <span class="key">"stack"</span>: <span class="str">"... (development only)"</span>
+}</pre>
+</div>
+
+<h2>Authentication</h2>
+<div class="model-card">
+  <p style="font-size:.85rem">All endpoints marked <span class="tag auth" style="vertical-align:middle">Auth</span> require the header:</p>
+  <pre><span class="key">Authorization</span>: Bearer &lt;accessToken&gt;</pre>
+</div>
+
+<p style="text-align:center;color:var(--muted);margin-top:3rem;font-size:.8rem">Expense Insight API &mdash; 27 endpoints &mdash; Express + Prisma + Neon DB + Gemini AI</p>
+
+</div>
+</body>
+</html>

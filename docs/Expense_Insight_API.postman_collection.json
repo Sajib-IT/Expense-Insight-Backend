@@ -1,0 +1,444 @@
+{
+  "info": {
+    "name": "Expense Insight API",
+    "description": "Complete API collection for Expense Insight Backend — Express + Prisma + Neon DB + Gemini AI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:5000/health", "host": ["http://localhost:5000"], "path": ["health"] },
+            "description": "Check if the server is running."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "description": "Register a new user. Sends a verification email."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "description": "Login and receive access + refresh tokens. Tokens are auto-saved to collection variables."
+          }
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/auth/verify-email/:token", "host": ["{{baseUrl}}"], "path": ["auth", "verify-email", ":token"], "variable": [{ "key": "token", "value": "paste-verification-token-here" }] },
+            "description": "Verify user email with the token received via email."
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}"
+            },
+            "description": "Request a password reset link. Sent to the registered email."
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth", "reset-password"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"paste-reset-token-here\",\n  \"password\": \"newPassword123\"\n}"
+            },
+            "description": "Reset password using the token from the reset email."
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/change-password", "host": ["{{baseUrl}}"], "path": ["auth", "change-password"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newPassword456\"\n}"
+            },
+            "description": "Change password while logged in. Requires current password."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/refresh-token", "host": ["{{baseUrl}}"], "path": ["auth", "refresh-token"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "description": "Get a new access token using the refresh token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users/profile", "host": ["{{baseUrl}}"], "path": ["users", "profile"] },
+            "description": "Get the logged-in user's profile."
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/users/profile", "host": ["{{baseUrl}}"], "path": ["users", "profile"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Updated\",\n  \"avatar\": \"https://example.com/avatar.png\"\n}"
+            },
+            "description": "Update name and/or avatar."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Food\",\n  \"type\": \"EXPENSE\",\n  \"icon\": \"🍔\",\n  \"colour\": \"#FF5733\"\n}"
+            },
+            "description": "Create a new category."
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/categories?type=EXPENSE",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"],
+              "query": [{ "key": "type", "value": "EXPENSE", "description": "Optional: INCOME or EXPENSE" }]
+            },
+            "description": "Get all categories. Optionally filter by type."
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/categories/:id", "host": ["{{baseUrl}}"], "path": ["categories", ":id"], "variable": [{ "key": "id", "value": "paste-category-id" }] },
+            "description": "Get a single category by ID."
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/categories/:id", "host": ["{{baseUrl}}"], "path": ["categories", ":id"], "variable": [{ "key": "id", "value": "paste-category-id" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Groceries\",\n  \"colour\": \"#28A745\"\n}"
+            },
+            "description": "Update a category. Cannot update default categories."
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/categories/:id", "host": ["{{baseUrl}}"], "path": ["categories", ":id"], "variable": [{ "key": "id", "value": "paste-category-id" }] },
+            "description": "Delete a category. Cannot delete default categories or categories with expenses."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expenses",
+      "item": [
+        {
+          "name": "Create Expense",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/expenses", "host": ["{{baseUrl}}"], "path": ["expenses"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 29.99,\n  \"description\": \"Weekly groceries\",\n  \"date\": \"2026-05-05\",\n  \"type\": \"EXPENSE\",\n  \"categoryId\": \"paste-category-id\"\n}"
+            },
+            "description": "Create a new expense or income entry."
+          }
+        },
+        {
+          "name": "Get All Expenses",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/expenses?page=1&limit=10&sortBy=date&sortOrder=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["expenses"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number (default 1)" },
+                { "key": "limit", "value": "10", "description": "Items per page (default 10)" },
+                { "key": "sortBy", "value": "date", "description": "Sort field (default createdAt)" },
+                { "key": "sortOrder", "value": "desc", "description": "asc or desc (default desc)" },
+                { "key": "type", "value": "EXPENSE", "description": "INCOME or EXPENSE", "disabled": true },
+                { "key": "categoryId", "value": "", "description": "Filter by category UUID", "disabled": true },
+                { "key": "startDate", "value": "2026-05-01", "description": "ISO date range start", "disabled": true },
+                { "key": "endDate", "value": "2026-05-31", "description": "ISO date range end", "disabled": true },
+                { "key": "searchTerm", "value": "", "description": "Search in description", "disabled": true }
+              ]
+            },
+            "description": "Get all expenses with pagination, sorting, and filters."
+          }
+        },
+        {
+          "name": "Get Expense by ID",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/expenses/:id", "host": ["{{baseUrl}}"], "path": ["expenses", ":id"], "variable": [{ "key": "id", "value": "paste-expense-id" }] },
+            "description": "Get a single expense by ID."
+          }
+        },
+        {
+          "name": "Update Expense",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/expenses/:id", "host": ["{{baseUrl}}"], "path": ["expenses", ":id"], "variable": [{ "key": "id", "value": "paste-expense-id" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 35.00,\n  \"description\": \"Updated groceries\"\n}"
+            },
+            "description": "Update an expense. All fields optional."
+          }
+        },
+        {
+          "name": "Delete Expense",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/expenses/:id", "host": ["{{baseUrl}}"], "path": ["expenses", ":id"], "variable": [{ "key": "id", "value": "paste-expense-id" }] },
+            "description": "Delete an expense."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budgets",
+      "item": [
+        {
+          "name": "Create Budget",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/budgets", "host": ["{{baseUrl}}"], "path": ["budgets"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500.00,\n  \"month\": 5,\n  \"year\": 2026,\n  \"categoryId\": \"paste-category-id\"\n}"
+            },
+            "description": "Create a monthly budget for a category. One budget per month/year/category."
+          }
+        },
+        {
+          "name": "Get All Budgets",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/budgets?month=5&year=2026",
+              "host": ["{{baseUrl}}"],
+              "path": ["budgets"],
+              "query": [
+                { "key": "month", "value": "5", "description": "Filter by month (1-12)" },
+                { "key": "year", "value": "2026", "description": "Filter by year" }
+              ]
+            },
+            "description": "Get all budgets with calculated spent/remaining/percentage."
+          }
+        },
+        {
+          "name": "Get Budget by ID",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/budgets/:id", "host": ["{{baseUrl}}"], "path": ["budgets", ":id"], "variable": [{ "key": "id", "value": "paste-budget-id" }] },
+            "description": "Get a single budget by ID."
+          }
+        },
+        {
+          "name": "Update Budget",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/budgets/:id", "host": ["{{baseUrl}}"], "path": ["budgets", ":id"], "variable": [{ "key": "id", "value": "paste-budget-id" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 600.00\n}"
+            },
+            "description": "Update budget amount."
+          }
+        },
+        {
+          "name": "Delete Budget",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/budgets/:id", "host": ["{{baseUrl}}"], "path": ["budgets", ":id"], "variable": [{ "key": "id", "value": "paste-budget-id" }] },
+            "description": "Delete a budget."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Monthly Summary",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/dashboard?month=5&year=2026",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard"],
+              "query": [
+                { "key": "month", "value": "5", "description": "Month (1-12), defaults to current" },
+                { "key": "year", "value": "2026", "description": "Year, defaults to current" }
+              ]
+            },
+            "description": "Get full dashboard: income/expense summary, category breakdown, budget overview, recent transactions."
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Extract",
+      "item": [
+        {
+          "name": "Extract from Receipt Image",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/ai-extract/receipt", "host": ["{{baseUrl}}"], "path": ["ai-extract", "receipt"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "receipt", "type": "file", "description": "Receipt image (JPEG, PNG, WebP, HEIC — max 10 MB)" }
+              ]
+            },
+            "description": "Upload a receipt image. Gemini AI extracts amount, date, merchant, category, items."
+          }
+        },
+        {
+          "name": "Extract from Text",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/ai-extract/text", "host": ["{{baseUrl}}"], "path": ["ai-extract", "text"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Spent £12.50 at Tesco for lunch yesterday\"\n}"
+            },
+            "description": "Send free-form text describing an expense. Gemini AI extracts structured data."
+          }
+        }
+      ]
+    }
+  ]
+}
