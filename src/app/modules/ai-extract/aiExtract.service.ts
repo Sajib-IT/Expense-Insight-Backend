@@ -64,7 +64,7 @@ const extractFromText = async (inputText: string) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Text input is required');
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
   const result = await model.generateContent([
     EXTRACTION_PROMPT + `\n\nExtract expense data from this text:\n"${inputText}"`,
