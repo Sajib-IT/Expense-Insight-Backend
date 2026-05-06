@@ -5,6 +5,7 @@ import sendResponse from '../../../shared/sendResponse';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../interfaces/pagination';
 import { ExpenseService } from './expense.service';
+import ApiError from '../../../errors/ApiError';
 
 const expenseFilterableFields = ['type', 'categoryId', 'startDate', 'endDate', 'searchTerm'];
 
@@ -61,4 +62,23 @@ const remove = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const ExpenseController = { create, getAll, getById, update, remove };
+const uploadReceipt = catchAsync(async (req: Request, res: Response) => {
+  if (!req.file) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Receipt file is required');
+  }
+
+  const result = await ExpenseService.uploadReceipt(
+    req.user!.userId,
+    req.params.id as string,
+    req.file.buffer,
+    req.file.mimetype,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Receipt uploaded successfully',
+    data: result,
+  });
+});
+
+export const ExpenseController = { create, getAll, getById, update, remove, uploadReceipt };

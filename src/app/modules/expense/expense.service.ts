@@ -5,6 +5,7 @@ import ApiError from '../../../errors/ApiError';
 import { paginationHelper } from '../../../helpers/paginationHelper';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
+import { cloudinaryHelper } from '../../../helpers/cloudinaryHelper';
 
 type ExpenseFilters = {
   searchTerm?: string;
@@ -156,4 +157,29 @@ const remove = async (userId: string, id: string) => {
   return { message: 'Expense deleted successfully' };
 };
 
-export const ExpenseService = { create, getAll, getById, update, remove };
+const uploadReceipt = async (
+  userId: string,
+  expenseId: string,
+  buffer: Buffer,
+  mimeType: string,
+) => {
+  const existing = await prisma.expense.findFirst({
+    where: { id: expenseId, userId },
+  });
+
+  if (!existing) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Expense not found');
+  }
+
+  const result = await cloudinaryHelper.uploadReceipt(buffer, userId, mimeType);
+
+  const expense = await prisma.expense.update({
+    where: { id: expenseId },
+    data: { receiptUrl: result.secureUrl },
+    include: { category: true },
+  });
+
+  return expense;
+};
+
+export const ExpenseService = { create, getAll, getById, update, remove, uploadReceipt };

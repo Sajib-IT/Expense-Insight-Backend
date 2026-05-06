@@ -1,0 +1,71 @@
+{
+  "info": {
+    "name": "Expense Insight - Upload APIs",
+    "description": "File upload endpoints for profile pictures and expense receipts using Cloudinary.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
+    { "key": "accessToken", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Upload Profile Picture",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/users/profile/avatar", "host": ["{{baseUrl}}"], "path": ["users", "profile", "avatar"] },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "avatar", "type": "file", "src": "", "description": "Profile picture (JPEG, PNG, WebP, HEIC — max 5MB)" }
+          ]
+        },
+        "description": "Upload a new profile picture. Automatically resized to 400x400 with face detection crop. Uploaded to Cloudinary."
+      }
+    },
+    {
+      "name": "Update Profile Picture",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+        "method": "PATCH",
+        "url": { "raw": "{{baseUrl}}/users/profile/avatar", "host": ["{{baseUrl}}"], "path": ["users", "profile", "avatar"] },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "avatar", "type": "file", "src": "", "description": "New profile picture (JPEG, PNG, WebP, HEIC — max 5MB)" }
+          ]
+        },
+        "description": "Replace existing profile picture. Overwrites the previous one on Cloudinary."
+      }
+    },
+    {
+      "name": "Delete Profile Picture",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+        "method": "DELETE",
+        "url": { "raw": "{{baseUrl}}/users/profile/avatar", "host": ["{{baseUrl}}"], "path": ["users", "profile", "avatar"] },
+        "description": "Delete the profile picture from Cloudinary and set avatar to null."
+      }
+    },
+    {
+      "name": "Upload Receipt",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/expenses/:id/receipt", "host": ["{{baseUrl}}"], "path": ["expenses", ":id", "receipt"], "variable": [{ "key": "id", "value": "paste-expense-id" }] },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "receipt", "type": "file", "src": "", "description": "Receipt image (JPEG, PNG, WebP, HEIC) or PDF — max 10MB" }
+          ]
+        },
+        "description": "Upload a receipt file for an expense. Saves the Cloudinary URL to the expense record."
+      }
+    }
+  ]
+}
