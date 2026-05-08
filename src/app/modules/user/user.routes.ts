@@ -9,7 +9,7 @@ const router = Router();
 
 router.get('/profile', auth(), UserController.getProfile);
 
-router.patch(
+router.patch( 
   '/profile',
   auth(),
   validateRequest(UserValidation.updateProfile),
